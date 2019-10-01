@@ -1,46 +1,50 @@
 package com.example.myapplie;
 
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Paint;
-import android.graphics.RadialGradient;
-import android.graphics.Shader;
-import android.graphics.SweepGradient;
+
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
 
 public class Gradiant extends AppCompatActivity {
-
+    float savedScore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(new MyView(this));
-    }
-}
-class MyView extends View {
-    final  int[] colors={ Color.rgb(255,0,0),
-            Color.rgb(255,127,0),
-            Color.rgb(255,255,0),
-            Color.rgb(0,255,0),
-            Color.rgb(0,0,255),
-            Color.rgb(75,0,130),
-            Color.rgb(143,0,255),};
-    public MyView(Context context) {
-        super(context);
-    }
-    public void onDraw(Canvas canvas){
-        Paint paint = new Paint();
-        paint.setShader(new RadialGradient(getWidth()/4,getHeight()/4,getWidth()/4,Color.RED, Color.BLACK, Shader.TileMode.CLAMP));
-        canvas.drawCircle(getWidth()/4,getHeight()/4,getWidth()/4,paint);
-        paint.setShader(new RadialGradient(3*(getWidth()/4),getHeight()/4,getWidth()/4,Color.YELLOW, Color.BLACK, Shader.TileMode.CLAMP));
-        canvas.drawCircle(3*(getWidth()/4),getHeight()/4,getWidth()/4,paint);
-        paint.setShader(new RadialGradient(getWidth()/4,3*(getHeight()/4),getWidth()/4,Color.GREEN, Color.BLACK, Shader.TileMode.CLAMP));
-        canvas.drawCircle(getWidth()/4,3*(getHeight()/4),getWidth()/4,paint);
-         paint.setShader(new RadialGradient(3*(getWidth()/4),3*(getHeight()/4),getWidth()/4,Color.WHITE, Color.BLACK, Shader.TileMode.CLAMP));
-        canvas.drawCircle(3*(getWidth()/4),3*(getHeight()/4),getWidth()/4,paint);
+        setContentView(R.layout.activity_main);
+        SharedPreferences d=getSharedPreferences("FILE",MODE_PRIVATE);
+        savedScore=d.getFloat("SCORE",0);
+        TextView textView=findViewById(R.id.textView);
+        textView.setText("최고온도: "+savedScore+"℃");
+        Button save=findViewById(R.id.btSave);
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences s=getSharedPreferences("FILE",MODE_PRIVATE);
+                SharedPreferences.Editor e = s.edit();
+                EditText editText=findViewById(R.id.editText);
+                float currentScore=Float.parseFloat(editText.getText().toString());
+                if(currentScore>savedScore) {
+                    e.putFloat("SCORE",currentScore);
+                    e.commit();
+                    Toast.makeText(Gradiant.this, currentScore+" 저장 완료", Toast.LENGTH_SHORT).show();
+                    TextView textView=findViewById(R.id.textView);
+                    savedScore=s.getFloat("SCORE",0);
+                    textView.setText("최고온도: "+savedScore+"℃");
+                }else{
+                    Toast.makeText(Gradiant.this, "낮은 온도는 저장 X", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
     }
+
 }
+
+
