@@ -37,10 +37,12 @@ public class NAVERParsing extends AppCompatActivity {
         @Override
         public void run() {
             try{
-                URL aURL=new URL("https://search.naver.com/search.naver?sm=tab_hty.top&where=nexearch&query=%EB%84%A4%EC%9D%B4%EB%B2%84+%EB%AF%B8%EC%84%B8%EB%A8%BC%EC%A7%80&oquery=%EC%A0%84%EA%B5%AD%EB%AF%B8%EC%84%B8%EB%A8%BC%EC%A7%80&tqi=UkQNgwp0JywssFdNOXhsssssttN-313606");
+                URL aURL=new URL("https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&query=%EC%A0%84%EA%B5%AD%EB%AF%B8%EC%84%B8%EB%A8%BC%EC%A7%80");
                 BufferedReader in =new BufferedReader(new InputStreamReader(aURL.openStream()));
                 while((strLine=in.readLine())!=null){
-                        strHtml+=strLine;
+                        if(strLine.contains("data-local-name"))
+                            strHtml+=strLine;
+
                 }
                 in.close();
                 h.sendMessage(new Message());
@@ -52,13 +54,16 @@ public class NAVERParsing extends AppCompatActivity {
     void HTMLParse(){
 
         try {
-            String strContent="";
-            int start = strHtml.indexOf("지역별 미세먼지 정보");
+            String strContent="지점   현재  \n";
+            int start = strHtml.indexOf("미세먼지");
             int end=0;
-            for(int i=1;i<=10;i++){
-                start=strHtml.indexOf("scope=\"row\"",start);
-                end=strHtml.indexOf("</span>",start);
-                strContent+="실시간 검색어 "+i+"위 : "+strHtml.substring(start+6,end)+"\n";
+            for(int i=1; i<=17; i++) {
+                start = strHtml.indexOf("lcl_name\">", end);
+                end = strHtml.indexOf("</span>", start);
+                int numStart=strHtml.indexOf("sign",end);
+                int numEnd=strHtml.indexOf("</span>",numStart);
+
+                strContent += strHtml.substring(start + 10, end)+"      "+strHtml.substring(numStart+7,numEnd)+"\n";
             }
             tv.setText(strContent);
         }catch (Exception e){
